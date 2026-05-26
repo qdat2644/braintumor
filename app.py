@@ -18,6 +18,7 @@ CHECKPOINT_DIR = PROJECT_ROOT / "outputs" / "checkpoints"
 
 CONVNEXT_CHECKPOINT = CHECKPOINT_DIR / "best_model_convnext_tiny_pad224_nohflip.pth"
 DENSENET_CHECKPOINT = CHECKPOINT_DIR / "best_model_densenet121_pad224_nohflip.pth"
+REQUIRED_CHECKPOINTS = [CONVNEXT_CHECKPOINT, DENSENET_CHECKPOINT]
 
 CLASS_NAMES = ["glioma", "meningioma", "notumor", "pituitary"]
 TUMOR_CLASSES = {"glioma", "meningioma", "pituitary"}
@@ -36,6 +37,11 @@ CLASS_DISPLAY_NAMES = {
     "pituitary": "Nghi ngờ u tuyến yên",
     "notumor": "Dạng giống không thấy u",
 }
+
+MISSING_CHECKPOINT_WARNING = (
+    "Không tìm thấy file model checkpoint. Vui lòng train model trước hoặc tải checkpoint từ "
+    "GitHub Releases rồi đặt vào thư mục outputs/checkpoints/."
+)
 
 
 @dataclass(frozen=True)
@@ -198,6 +204,28 @@ def inject_css() -> None:
     )
 
 
+def display_path(path: Path) -> str:
+    try:
+        return path.relative_to(PROJECT_ROOT).as_posix()
+    except ValueError:
+        return str(path)
+
+
+def stop_if_missing_checkpoints() -> None:
+    missing_paths = [path for path in REQUIRED_CHECKPOINTS if not path.exists()]
+    if not missing_paths:
+        return
+
+    st.warning(MISSING_CHECKPOINT_WARNING)
+    st.markdown("**Các checkpoint còn thiếu:**")
+    for path in missing_paths:
+        st.code(display_path(path), language="text")
+    st.markdown(
+        "Bạn có thể train model locally hoặc tải checkpoint từ GitHub Releases nếu repository owner cung cấp."
+    )
+    st.stop()
+
+
 @st.cache_resource
 def load_model(checkpoint_path: str, model_name: str) -> torch.nn.Module:
     checkpoint = Path(checkpoint_path)
@@ -340,6 +368,7 @@ def main() -> None:
         unsafe_allow_html=True,
     )
     st.markdown(f'<div class="top-disclaimer">{escape(DISCLAIMER)}</div>', unsafe_allow_html=True)
+    stop_if_missing_checkpoints()
 
     left_col, right_col = st.columns([0.9, 1.1], gap="large")
 
