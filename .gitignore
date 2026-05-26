@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Environments
+.venv/
+venv/
+env/
+.env
+.conda/
+
+# Data
+data/raw/
+data/extracted/
+*.zip
+
+# Model checkpoints
+outputs/checkpoints/
+*.pth
+*.pt
+*.onnx
+
+# Heavy generated artifacts
+outputs/gradcam/
+outputs/high_risk_samples/
+outputs/combined_gate_missed_samples/
+outputs/binary_training_curves.png
+outputs/training_curves*.png
+outputs/confusion_matrix*.png
+outputs/binary_confusion_matrix.png
+
+# Cache/logs
+.cache/
+*.log
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# OS
+.DS_Store
+Thumbs.db
